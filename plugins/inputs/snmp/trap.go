@@ -11,7 +11,42 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+	"github.com/influxdata/telegraf"
+    	"github.com/influxdata/telegraf/plugins/inputs"
 )
+
+type gosnmp struct {
+    Ok bool `toml:"ok"`
+}
+
+func (s *gosnmp) Description() string {
+    return "a demo plugin"
+}
+
+func (s *gosnmp) SampleConfig() string {
+    return `
+  ## Indicate if everything is fine
+  ok = true
+`
+}
+
+func (s *gosnmp) Init() error {
+	return nil
+}
+
+func (s *gosnmp) Gather(acc telegraf.Accumulator) error {
+    if s.Ok {
+        acc.AddFields("state", map[string]interface{}{"value": "pretty good"}, nil)
+    } else {
+        acc.AddFields("state", map[string]interface{}{"value": "not great"}, nil)
+    }
+
+    return nil
+}
+
+func init() {
+    inputs.Add("simple", func() telegraf.Input { return &gosnmp{} })
+}
 
 //
 // Sending Traps ie GoSNMP acting as an Agent
